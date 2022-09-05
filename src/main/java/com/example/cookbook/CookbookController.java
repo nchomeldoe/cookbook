@@ -14,8 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.Integer.parseInt;
 
@@ -36,10 +38,39 @@ public class CookbookController {
     QuantityService quantityService;
 
 
+//    @GetMapping("/cookbook/recipes")
+//    public ResponseEntity<List<Recipe>> getRecipes() {
+//        List<Recipe> recipes = recipeService.getAllRecipes();
+//        return ResponseEntity.status(HttpStatus.OK).body(recipes);
+//    }
+
     @GetMapping("/cookbook/recipes")
-    public ResponseEntity<List<Recipe>> getRecipes() {
+    public ResponseEntity<?> getRecipes() {
         List<Recipe> recipes = recipeService.getAllRecipes();
-        return ResponseEntity.status(HttpStatus.OK).body(recipes);
+        List<DeserializedRecipe> recipesToReturn = new ArrayList<>();
+        for (Recipe recipe : recipes) {
+            List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantitiesList = new ArrayList<>();
+            DeserializedRecipe recipeToReturn = new DeserializedRecipe(recipe.getId(), recipe.getName(), recipe.getDescription(), recipe.getCreatedBy(), recipe.getCuisine(), ingredientsAndQuantitiesList);
+            Set<RecipeElement> recipeElements = recipe.getRecipeElements();
+            for (RecipeElement recipeElement : recipeElements) {
+                String ingredientName = ingredientService.getIngredientByRecipeElement(recipeElement).getName();
+                HashMap<String, String> ingredientNameHashMap = new HashMap<>();
+                ingredientNameHashMap.put("name", ingredientName);
+                HashMap<String, HashMap<String, String>> ingredientAndQuantityHashMap = new HashMap<>();
+                ingredientAndQuantityHashMap.put("ingredient", ingredientNameHashMap);
+
+                String quantityValue = String.valueOf(quantityService.getQuantityByRecipeElement(recipeElement).getValue());
+                String quantityUnit = String.valueOf(quantityService.getQuantityByRecipeElement(recipeElement).getUnit());
+                HashMap<String, String> valueAndUnitHashMap = new HashMap<>();
+                valueAndUnitHashMap.put("value", quantityValue);
+                valueAndUnitHashMap.put("unit", quantityUnit);
+                ingredientAndQuantityHashMap.put("quantity", valueAndUnitHashMap);
+              ingredientsAndQuantitiesList.add(ingredientAndQuantityHashMap);
+            }
+            recipeToReturn.setIngredientsAndQuantities(ingredientsAndQuantitiesList);
+            recipesToReturn.add(recipeToReturn);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(recipesToReturn);
     }
 
     @GetMapping("/cookbook/recipe/{id}")

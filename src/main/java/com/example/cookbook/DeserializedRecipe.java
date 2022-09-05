@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class DeserializedRecipe {
+
+    private int id;
     private String name;
     private String description;
     private String createdBy;
@@ -11,12 +13,21 @@ public class DeserializedRecipe {
 
     private List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantities;
 
-    public DeserializedRecipe(String name, String description, String createdBy, String cuisine, List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantities) {
+    public DeserializedRecipe(int id, String name, String description, String createdBy, String cuisine, List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantities) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.createdBy = createdBy;
         this.cuisine = cuisine;
         this.ingredientsAndQuantities = ingredientsAndQuantities;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
