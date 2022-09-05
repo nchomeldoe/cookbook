@@ -1,4 +1,4 @@
-package com.example.cookbook.Entities;
+package com.example.cookbook.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -10,29 +10,15 @@ public class RecipeElement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-//    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "ingredient_id", referencedColumnName = "id")
-//    private Ingredient ingredient;
-//
-//    @ManyToMany(mappedBy = "recipeElements", cascade = { CascadeType.ALL })
-//    Set<Recipe> recipes;
-
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false, orphanRemoval = true)
-//    @JoinColumn(name = "ingredient_id", nullable = false)
     @ManyToOne
     @JoinColumn(name = "ingredient_id")
     @JsonBackReference
     private Ingredient ingredient;
-
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false, orphanRemoval = true)
-//    @JoinColumn(name = "recipe_id", nullable = false)
     @ManyToOne
     @JoinColumn(name = "recipe_id")
     @JsonBackReference
     private Recipe recipe;
 
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false, orphanRemoval = true)
-//    @JoinColumn(name = "quantity_id", nullable = false)
     @ManyToOne
     @JoinColumn(name = "quantity_id")
     @JsonBackReference

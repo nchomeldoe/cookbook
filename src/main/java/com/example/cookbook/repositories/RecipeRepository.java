@@ -1,7 +1,6 @@
-package com.example.cookbook.Repositories;
+package com.example.cookbook.repositories;
 
-import com.example.cookbook.Entities.Ingredient;
-import com.example.cookbook.Entities.Recipe;
+import com.example.cookbook.entities.Recipe;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

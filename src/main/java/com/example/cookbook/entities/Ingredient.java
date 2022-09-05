@@ -1,35 +1,31 @@
-package com.example.cookbook.Entities;
+package com.example.cookbook.entities;
 
-import com.example.cookbook.Entities.RecipeElement;
-import com.example.cookbook.IngredientUnit;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-public class Quantity {
+public class Ingredient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private double value;
+    @Column(unique=true)
+    private String name;
 
-    private IngredientUnit unit;
-
-    @OneToMany(mappedBy = "quantity",
+    @OneToMany(mappedBy = "ingredient",
 //            fetch = FetchType.LAZY,
             cascade = CascadeType.ALL
     )
     @JsonManagedReference
     private Set<RecipeElement> recipeElements;
 
-    public Quantity() {
+    public Ingredient() {
     }
 
-    public Quantity(double value, IngredientUnit unit) {
-        this.value = value;
-        this.unit = unit;
+    public Ingredient(String name) {
+        this.name = name;
     }
 
     public int getId() {
@@ -40,20 +36,12 @@ public class Quantity {
         this.id = id;
     }
 
-    public double getValue() {
-        return value;
+    public String getName() {
+        return name;
     }
 
-    public void setValue(double value) {
-        this.value = value;
-    }
-
-    public IngredientUnit getUnit() {
-        return unit;
-    }
-
-    public void setUnit(IngredientUnit unit) {
-        this.unit = unit;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Set<RecipeElement> getRecipeElements() {
@@ -67,4 +55,5 @@ public class Quantity {
     public void removeRecipeElement(RecipeElement recipeElement) {
         recipeElements.remove(recipeElement);
     }
+
 }

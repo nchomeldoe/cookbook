@@ -1,9 +1,8 @@
-package com.example.cookbook.Services;
+package com.example.cookbook.services;
 
-import com.example.cookbook.Entities.Ingredient;
-import com.example.cookbook.Entities.Recipe;
-import com.example.cookbook.Entities.RecipeElement;
-import com.example.cookbook.Repositories.IngredientRepository;
+import com.example.cookbook.entities.Ingredient;
+import com.example.cookbook.entities.RecipeElement;
+import com.example.cookbook.repositories.IngredientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

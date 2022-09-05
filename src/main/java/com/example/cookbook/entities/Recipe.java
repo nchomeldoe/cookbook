@@ -1,4 +1,4 @@
-package com.example.cookbook.Entities;
+package com.example.cookbook.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -25,15 +25,6 @@ public class Recipe {
     )
     @JsonManagedReference
     private Set<RecipeElement> recipeElements;
-
-//    @ManyToMany(cascade = {
-//            CascadeType.ALL
-//    })
-//    @JoinTable(
-//            name = "recipes_recipe_elements",
-//            joinColumns = @JoinColumn(name = "recipe_id"),
-//            inverseJoinColumns = @JoinColumn(name = "recipe_element_id"))
-//    Set<RecipeElement> recipeElements;
 
     public Recipe() {
         this.dateCreated = new Timestamp(new Date().getTime());

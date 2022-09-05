@@ -1,13 +1,13 @@
 package com.example.cookbook;
 
-import com.example.cookbook.Entities.Ingredient;
-import com.example.cookbook.Entities.Quantity;
-import com.example.cookbook.Entities.Recipe;
-import com.example.cookbook.Entities.RecipeElement;
-import com.example.cookbook.Services.IngredientService;
-import com.example.cookbook.Services.QuantityService;
-import com.example.cookbook.Services.RecipeElementService;
-import com.example.cookbook.Services.RecipeService;
+import com.example.cookbook.entities.Ingredient;
+import com.example.cookbook.entities.Quantity;
+import com.example.cookbook.entities.Recipe;
+import com.example.cookbook.entities.RecipeElement;
+import com.example.cookbook.services.IngredientService;
+import com.example.cookbook.services.QuantityService;
+import com.example.cookbook.services.RecipeElementService;
+import com.example.cookbook.services.RecipeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.lang.Integer.parseInt;
 
