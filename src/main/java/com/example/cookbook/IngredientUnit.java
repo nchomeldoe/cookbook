@@ -1,5 +1,5 @@
 package com.example.cookbook;
 
 public enum IngredientUnit {
-    mg, g, kg, ml, l, cup, tbsp, tsp, can, tin, pinch, drizzle, item
+    mg, g, kg, ml, l, cup, tbsp, tsp, can, tin, pinch, drizzle, item, clove, stick, bunch, packet
 }

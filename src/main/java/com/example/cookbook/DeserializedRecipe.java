@@ -1,20 +1,24 @@
 package com.example.cookbook;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class DeserializedRecipe {
 
     private int id;
+
+    private int serves;
     private String name;
-    private String description;
+    private ArrayList<String> description;
     private String createdBy;
     private String cuisine;
 
     private List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantities;
 
-    public DeserializedRecipe(int id, String name, String description, String createdBy, String cuisine, List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantities) {
+    public DeserializedRecipe(int id, int serves, String name, ArrayList<String> description, String createdBy, String cuisine, List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantities) {
         this.id = id;
+        this.serves = serves;
         this.name = name;
         this.description = description;
         this.createdBy = createdBy;
@@ -38,11 +42,19 @@ public class DeserializedRecipe {
         this.name = name;
     }
 
-    public String getDescription() {
+    public int getServes() {
+        return serves;
+    }
+
+    public void setServes(int serves) {
+        this.serves = serves;
+    }
+
+    public ArrayList<String> getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(ArrayList<String> description) {
         this.description = description;
     }
 

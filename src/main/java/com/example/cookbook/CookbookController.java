@@ -38,19 +38,13 @@ public class CookbookController {
     QuantityService quantityService;
 
 
-//    @GetMapping("/cookbook/recipes")
-//    public ResponseEntity<List<Recipe>> getRecipes() {
-//        List<Recipe> recipes = recipeService.getAllRecipes();
-//        return ResponseEntity.status(HttpStatus.OK).body(recipes);
-//    }
-
     @GetMapping("/cookbook/recipes")
     public ResponseEntity<?> getRecipes() {
         List<Recipe> recipes = recipeService.getAllRecipes();
         List<DeserializedRecipe> recipesToReturn = new ArrayList<>();
         for (Recipe recipe : recipes) {
             List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantitiesList = new ArrayList<>();
-            DeserializedRecipe recipeToReturn = new DeserializedRecipe(recipe.getId(), recipe.getName(), recipe.getDescription(), recipe.getCreatedBy(), recipe.getCuisine(), ingredientsAndQuantitiesList);
+            DeserializedRecipe recipeToReturn = new DeserializedRecipe(recipe.getId(), recipe.getServes(), recipe.getName(), recipe.getDescription(), recipe.getCreatedBy(), recipe.getCuisine(), ingredientsAndQuantitiesList);
             Set<RecipeElement> recipeElements = recipe.getRecipeElements();
             for (RecipeElement recipeElement : recipeElements) {
                 String ingredientName = ingredientService.getIngredientByRecipeElement(recipeElement).getName();
@@ -148,7 +142,7 @@ public class CookbookController {
     @PostMapping("/cookbook/recipe")
     public ResponseEntity<?> createRecipe(@RequestBody DeserializedRecipe recipe) {
         try {
-            Recipe newRecipe = new Recipe(recipe.getName(), recipe.getDescription(), recipe.getCreatedBy(), recipe.getCuisine());
+            Recipe newRecipe = new Recipe(recipe.getServes(), recipe.getName(), recipe.getDescription(), recipe.getCreatedBy(), recipe.getCuisine());
             Recipe createdRecipe = recipeService.createRecipe(newRecipe);
             List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantities = recipe.getIngredientsAndQuantities();
             for (HashMap<String, HashMap<String, String>> element : ingredientsAndQuantities) {
@@ -185,6 +179,7 @@ public class CookbookController {
         } else {
             try {
                 existingRecipe.setName(recipe.getName());
+                existingRecipe.setServes(recipe.getServes());
                 existingRecipe.setDescription(recipe.getDescription());
                 existingRecipe.setCreatedBy(recipe.getCreatedBy());
                 existingRecipe.setCuisine(recipe.getCuisine());
