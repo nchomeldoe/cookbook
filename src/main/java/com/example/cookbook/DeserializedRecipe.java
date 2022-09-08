@@ -1,8 +1,8 @@
 package com.example.cookbook;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DeserializedRecipe {
 
@@ -10,13 +10,13 @@ public class DeserializedRecipe {
 
     private int serves;
     private String name;
-    private ArrayList<String> description;
+    private List<String> description;
     private String createdBy;
     private String cuisine;
 
-    private List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantities;
+    private List<Map<String, Map<String, String>>> ingredientsAndQuantities;
 
-    public DeserializedRecipe(int id, int serves, String name, ArrayList<String> description, String createdBy, String cuisine, List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantities) {
+    public DeserializedRecipe(int id, int serves, String name, List<String> description, String createdBy, String cuisine, List<Map<String, Map<String, String>>> ingredientsAndQuantities) {
         this.id = id;
         this.serves = serves;
         this.name = name;
@@ -50,11 +50,11 @@ public class DeserializedRecipe {
         this.serves = serves;
     }
 
-    public ArrayList<String> getDescription() {
+    public List<String> getDescription() {
         return description;
     }
 
-    public void setDescription(ArrayList<String> description) {
+    public void setDescription(List<String> description) {
         this.description = description;
     }
 
@@ -74,11 +74,11 @@ public class DeserializedRecipe {
         this.cuisine = cuisine;
     }
 
-    public List<HashMap<String, HashMap<String, String>>> getIngredientsAndQuantities() {
+    public List<Map<String, Map<String, String>>> getIngredientsAndQuantities() {
         return ingredientsAndQuantities;
     }
 
-    public void setIngredientsAndQuantities(List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantities) {
+    public void setIngredientsAndQuantities(List<Map<String, Map<String, String>>> ingredientsAndQuantities) {
         this.ingredientsAndQuantities = ingredientsAndQuantities;
     }
 }

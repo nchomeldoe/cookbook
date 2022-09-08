@@ -14,10 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.Integer.parseInt;
 
@@ -43,23 +40,23 @@ public class CookbookController {
         List<Recipe> recipes = recipeService.getAllRecipes();
         List<DeserializedRecipe> recipesToReturn = new ArrayList<>();
         for (Recipe recipe : recipes) {
-            List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantitiesList = new ArrayList<>();
+            List<Map<String, Map<String, String>>> ingredientsAndQuantitiesList = new ArrayList<>();
             DeserializedRecipe recipeToReturn = new DeserializedRecipe(recipe.getId(), recipe.getServes(), recipe.getName(), recipe.getDescription(), recipe.getCreatedBy(), recipe.getCuisine(), ingredientsAndQuantitiesList);
             Set<RecipeElement> recipeElements = recipe.getRecipeElements();
             for (RecipeElement recipeElement : recipeElements) {
                 String ingredientName = ingredientService.getIngredientByRecipeElement(recipeElement).getName();
-                HashMap<String, String> ingredientNameHashMap = new HashMap<>();
-                ingredientNameHashMap.put("name", ingredientName);
-                HashMap<String, HashMap<String, String>> ingredientAndQuantityHashMap = new HashMap<>();
-                ingredientAndQuantityHashMap.put("ingredient", ingredientNameHashMap);
+                Map<String, String> ingredientNameMap = new HashMap<>();
+                ingredientNameMap.put("name", ingredientName);
+                Map<String, Map<String, String>> ingredientAndQuantityMap = new HashMap<>();
+                ingredientAndQuantityMap.put("ingredient", ingredientNameMap);
 
                 String quantityValue = String.valueOf(quantityService.getQuantityByRecipeElement(recipeElement).getValue());
                 String quantityUnit = String.valueOf(quantityService.getQuantityByRecipeElement(recipeElement).getUnit());
-                HashMap<String, String> valueAndUnitHashMap = new HashMap<>();
-                valueAndUnitHashMap.put("value", quantityValue);
-                valueAndUnitHashMap.put("unit", quantityUnit);
-                ingredientAndQuantityHashMap.put("quantity", valueAndUnitHashMap);
-              ingredientsAndQuantitiesList.add(ingredientAndQuantityHashMap);
+                Map<String, String> valueAndUnitMap = new HashMap<>();
+                valueAndUnitMap.put("value", quantityValue);
+                valueAndUnitMap.put("unit", quantityUnit);
+                ingredientAndQuantityMap.put("quantity", valueAndUnitMap);
+              ingredientsAndQuantitiesList.add(ingredientAndQuantityMap);
             }
             recipeToReturn.setIngredientsAndQuantities(ingredientsAndQuantitiesList);
             recipesToReturn.add(recipeToReturn);
@@ -144,8 +141,8 @@ public class CookbookController {
         try {
             Recipe newRecipe = new Recipe(recipe.getServes(), recipe.getName(), recipe.getDescription(), recipe.getCreatedBy(), recipe.getCuisine());
             Recipe createdRecipe = recipeService.createRecipe(newRecipe);
-            List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantities = recipe.getIngredientsAndQuantities();
-            for (HashMap<String, HashMap<String, String>> element : ingredientsAndQuantities) {
+            List<Map<String, Map<String, String>>> ingredientsAndQuantities = recipe.getIngredientsAndQuantities();
+            for (Map<String, Map<String, String>> element : ingredientsAndQuantities) {
                 String ingredientName = element.get("ingredient").get("name");
                 Ingredient newIngredient;
                 Ingredient ingredientMatchingName = ingredientService.getIngredientByName(ingredientName);
@@ -154,7 +151,7 @@ public class CookbookController {
                 } else {
                     newIngredient = ingredientMatchingName;
                 }
-                HashMap<String, String> quantity = element.get("quantity");
+                Map<String, String> quantity = element.get("quantity");
                 Quantity newQuantity;
                 Quantity quantityMatchingValueAndUnit = quantityService.getQuantityByValueAndUnit(Double.parseDouble(quantity.get("value")), IngredientUnit.valueOf(quantity.get("unit")));
                 if(quantityMatchingValueAndUnit == null) {
@@ -184,8 +181,8 @@ public class CookbookController {
                 existingRecipe.setCreatedBy(recipe.getCreatedBy());
                 existingRecipe.setCuisine(recipe.getCuisine());
                 recipeElementService.deleteRecipeElementByRecipe(existingRecipe);
-                List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantities = recipe.getIngredientsAndQuantities();
-                for (HashMap<String, HashMap<String, String>> element : ingredientsAndQuantities) {
+                List<Map<String, Map<String, String>>> ingredientsAndQuantities = recipe.getIngredientsAndQuantities();
+                for (Map<String, Map<String, String>> element : ingredientsAndQuantities) {
                     String ingredientName = element.get("ingredient").get("name");
                     Ingredient newIngredient;
                     Ingredient ingredientMatchingName = ingredientService.getIngredientByName(ingredientName);
@@ -194,7 +191,7 @@ public class CookbookController {
                     } else {
                         newIngredient = ingredientMatchingName;
                     }
-                    HashMap<String, String> quantity = element.get("quantity");
+                    Map<String, String> quantity = element.get("quantity");
                     Quantity newQuantity;
                     Quantity quantityMatchingValueAndUnit = quantityService.getQuantityByValueAndUnit(Double.parseDouble(quantity.get("value")), IngredientUnit.valueOf(quantity.get("unit")));
                     if(quantityMatchingValueAndUnit == null) {

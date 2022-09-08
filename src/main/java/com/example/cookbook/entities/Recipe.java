@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -18,8 +17,9 @@ public class Recipe {
 
     private int serves;
     private String name;
-    @Lob
-    private ArrayList<String> description;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @OrderColumn(name="sequence")
+    private List<String> description;
     private String createdBy;
     private String cuisine;
     private Timestamp dateCreated;
@@ -35,7 +35,7 @@ public class Recipe {
         this.dateCreated = new Timestamp(new Date().getTime());
     }
 
-    public Recipe(int serves, String name, ArrayList<String> description, String createdBy, String cuisine) {
+    public Recipe(int serves, String name, List<String> description, String createdBy, String cuisine) {
         this.serves = serves;
         this.name = name;
         this.description = description;
@@ -60,11 +60,11 @@ public class Recipe {
         this.name = name;
     }
 
-    public ArrayList<String> getDescription() {
+    public List<String> getDescription() {
         return description;
     }
 
-    public void setDescription(ArrayList<String> description) {
+    public void setDescription(List<String> description) {
         this.description = description;
     }
 
