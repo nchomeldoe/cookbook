@@ -220,5 +220,14 @@ public class CookbookController {
         return ResponseEntity.status(HttpStatus.OK).body("recipe deleted successfully");
     }
 
+    @DeleteMapping("/cookbook/ingredient/{id}")
+    public ResponseEntity<String> deleteIngredient(@PathVariable String id) {
+        boolean isDeleted = ingredientService.deleteIngredientById(parseInt(id));
+        if (isDeleted == false) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("couldn't find an ingredient to delete with that id");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("ingredient deleted successfully");
+    }
+
 
 }

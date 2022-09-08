@@ -1,6 +1,7 @@
 package com.example.cookbook.services;
 
 import com.example.cookbook.entities.Ingredient;
+import com.example.cookbook.entities.Recipe;
 import com.example.cookbook.entities.RecipeElement;
 import com.example.cookbook.repositories.IngredientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +31,16 @@ public class IngredientService {
     }
 
     public Ingredient createIngredient(Ingredient ingredient) {
-//        if (ingredient.getName() == null || ingredient.getName().length() < 1) {
-//            throw new RuntimeException("Ingredient must have text");
-//        }
-
         return ingredientRepository.save(ingredient);
+    }
+
+    public boolean deleteIngredientById(int id){
+        Ingredient ingredientToDelete = ingredientRepository.findById(id).orElse(null);
+        if(ingredientToDelete == null){
+            return false;
+        }
+        ingredientRepository.delete(ingredientToDelete);
+        return true;
     }
 
 }
