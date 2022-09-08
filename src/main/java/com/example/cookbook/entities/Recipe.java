@@ -25,7 +25,6 @@ public class Recipe {
     private Timestamp dateCreated;
 
     @OneToMany(mappedBy = "recipe",
-//            fetch = FetchType.LAZY,
             cascade = CascadeType.ALL
     )
     @JsonManagedReference

@@ -15,7 +15,6 @@ public class Ingredient {
     private String name;
 
     @OneToMany(mappedBy = "ingredient",
-//            fetch = FetchType.LAZY,
             cascade = CascadeType.ALL
     )
     @JsonManagedReference
