@@ -17,7 +17,6 @@ public class Quantity {
     private IngredientUnit unit;
 
     @OneToMany(mappedBy = "quantity",
-//            fetch = FetchType.LAZY,
             cascade = CascadeType.ALL
     )
     @JsonManagedReference

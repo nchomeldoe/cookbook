@@ -4,20 +4,14 @@ import com.example.cookbook.entities.Ingredient;
 import com.example.cookbook.entities.Quantity;
 import com.example.cookbook.entities.Recipe;
 import com.example.cookbook.entities.RecipeElement;
-import com.example.cookbook.services.IngredientService;
-import com.example.cookbook.services.QuantityService;
-import com.example.cookbook.services.RecipeElementService;
-import com.example.cookbook.services.RecipeService;
+import com.example.cookbook.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.Integer.parseInt;
 
@@ -36,36 +30,19 @@ public class CookbookController {
 
     @Autowired
     QuantityService quantityService;
-
+    @Autowired
+    DataTransformer dataTransformer;
 
     @GetMapping("/cookbook/recipes")
     public ResponseEntity<?> getRecipes() {
         List<Recipe> recipes = recipeService.getAllRecipes();
         List<DeserializedRecipe> recipesToReturn = new ArrayList<>();
         for (Recipe recipe : recipes) {
-            List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantitiesList = new ArrayList<>();
-            DeserializedRecipe recipeToReturn = new DeserializedRecipe(recipe.getId(), recipe.getServes(), recipe.getName(), recipe.getDescription(), recipe.getCreatedBy(), recipe.getCuisine(), ingredientsAndQuantitiesList);
-            Set<RecipeElement> recipeElements = recipe.getRecipeElements();
-            for (RecipeElement recipeElement : recipeElements) {
-                String ingredientName = ingredientService.getIngredientByRecipeElement(recipeElement).getName();
-                HashMap<String, String> ingredientNameHashMap = new HashMap<>();
-                ingredientNameHashMap.put("name", ingredientName);
-                HashMap<String, HashMap<String, String>> ingredientAndQuantityHashMap = new HashMap<>();
-                ingredientAndQuantityHashMap.put("ingredient", ingredientNameHashMap);
-
-                String quantityValue = String.valueOf(quantityService.getQuantityByRecipeElement(recipeElement).getValue());
-                String quantityUnit = String.valueOf(quantityService.getQuantityByRecipeElement(recipeElement).getUnit());
-                HashMap<String, String> valueAndUnitHashMap = new HashMap<>();
-                valueAndUnitHashMap.put("value", quantityValue);
-                valueAndUnitHashMap.put("unit", quantityUnit);
-                ingredientAndQuantityHashMap.put("quantity", valueAndUnitHashMap);
-              ingredientsAndQuantitiesList.add(ingredientAndQuantityHashMap);
-            }
-            recipeToReturn.setIngredientsAndQuantities(ingredientsAndQuantitiesList);
-            recipesToReturn.add(recipeToReturn);
+            recipesToReturn.add(dataTransformer.convertRecipeIntoDeserializedRecipe(recipe));
         }
         return ResponseEntity.status(HttpStatus.OK).body(recipesToReturn);
     }
+
 
     @GetMapping("/cookbook/recipe/{id}")
     public ResponseEntity<?> getRecipeById(@PathVariable String id) {
@@ -73,6 +50,7 @@ public class CookbookController {
         if(recipe == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("couldn't find a recipe with that id");
         }
+        DeserializedRecipe recipeToReturn = dataTransformer.convertRecipeIntoDeserializedRecipe(recipe);
         return ResponseEntity.status(HttpStatus.OK).body(recipe);
     }
 
@@ -142,68 +120,23 @@ public class CookbookController {
     @PostMapping("/cookbook/recipe")
     public ResponseEntity<?> createRecipe(@RequestBody DeserializedRecipe recipe) {
         try {
-            Recipe newRecipe = new Recipe(recipe.getServes(), recipe.getName(), recipe.getDescription(), recipe.getCreatedBy(), recipe.getCuisine());
-            Recipe createdRecipe = recipeService.createRecipe(newRecipe);
-            List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantities = recipe.getIngredientsAndQuantities();
-            for (HashMap<String, HashMap<String, String>> element : ingredientsAndQuantities) {
-                String ingredientName = element.get("ingredient").get("name");
-                Ingredient newIngredient;
-                Ingredient ingredientMatchingName = ingredientService.getIngredientByName(ingredientName);
-                if(ingredientMatchingName == null ) {
-                    newIngredient = ingredientService.createIngredient(new Ingredient(ingredientName));
-                } else {
-                    newIngredient = ingredientMatchingName;
-                }
-                HashMap<String, String> quantity = element.get("quantity");
-                Quantity newQuantity;
-                Quantity quantityMatchingValueAndUnit = quantityService.getQuantityByValueAndUnit(Double.parseDouble(quantity.get("value")), IngredientUnit.valueOf(quantity.get("unit")));
-                if(quantityMatchingValueAndUnit == null) {
-                    newQuantity = quantityService.createQuantity(new Quantity(Double.parseDouble(quantity.get("value")), IngredientUnit.valueOf(quantity.get("unit"))));
-                } else {
-                    newQuantity = quantityMatchingValueAndUnit;
-                }
-                recipeElementService.createRecipeElement(new RecipeElement(newIngredient, createdRecipe, newQuantity));
-            }
+            Recipe createdRecipe = dataTransformer.convertDeserializedRecipeIntoRecipe(recipe);
             return ResponseEntity.status(HttpStatus.OK).body(createdRecipe);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
+
     @Transactional
     @PutMapping("/cookbook/recipe/{id}")
     public ResponseEntity<?> updateRecipe(@PathVariable String id, @RequestBody DeserializedRecipe recipe) {
         Recipe existingRecipe = recipeService.getRecipeById(parseInt(id));
-        if(existingRecipe == null) {
+        if (existingRecipe == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("couldn't find a recipe with that id");
         } else {
             try {
-                existingRecipe.setName(recipe.getName());
-                existingRecipe.setServes(recipe.getServes());
-                existingRecipe.setDescription(recipe.getDescription());
-                existingRecipe.setCreatedBy(recipe.getCreatedBy());
-                existingRecipe.setCuisine(recipe.getCuisine());
-                recipeElementService.deleteRecipeElementByRecipe(existingRecipe);
-                List<HashMap<String, HashMap<String, String>>> ingredientsAndQuantities = recipe.getIngredientsAndQuantities();
-                for (HashMap<String, HashMap<String, String>> element : ingredientsAndQuantities) {
-                    String ingredientName = element.get("ingredient").get("name");
-                    Ingredient newIngredient;
-                    Ingredient ingredientMatchingName = ingredientService.getIngredientByName(ingredientName);
-                    if(ingredientMatchingName == null ) {
-                        newIngredient = ingredientService.createIngredient(new Ingredient(ingredientName));
-                    } else {
-                        newIngredient = ingredientMatchingName;
-                    }
-                    HashMap<String, String> quantity = element.get("quantity");
-                    Quantity newQuantity;
-                    Quantity quantityMatchingValueAndUnit = quantityService.getQuantityByValueAndUnit(Double.parseDouble(quantity.get("value")), IngredientUnit.valueOf(quantity.get("unit")));
-                    if(quantityMatchingValueAndUnit == null) {
-                        newQuantity = quantityService.createQuantity(new Quantity(Double.parseDouble(quantity.get("value")), IngredientUnit.valueOf(quantity.get("unit"))));
-                    } else {
-                        newQuantity = quantityMatchingValueAndUnit;
-                    }
-                    recipeElementService.createRecipeElement(new RecipeElement(newIngredient, existingRecipe, newQuantity));
-                }
+                existingRecipe = dataTransformer.updateExitingRecipeFromDeserializedRecipe(existingRecipe, recipe);
                 return ResponseEntity.status(HttpStatus.OK).body(existingRecipe);
             } catch (RuntimeException e) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -218,15 +151,6 @@ public class CookbookController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("couldn't find a recipe to delete with that id");
         }
         return ResponseEntity.status(HttpStatus.OK).body("recipe deleted successfully");
-    }
-
-    @DeleteMapping("/cookbook/ingredient/{id}")
-    public ResponseEntity<String> deleteIngredient(@PathVariable String id) {
-        boolean isDeleted = ingredientService.deleteIngredientById(parseInt(id));
-        if (isDeleted == false) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("couldn't find an ingredient to delete with that id");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body("ingredient deleted successfully");
     }
 
 
