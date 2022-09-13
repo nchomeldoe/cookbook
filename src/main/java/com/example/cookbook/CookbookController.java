@@ -50,6 +50,7 @@ public class CookbookController {
         if(recipe == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("couldn't find a recipe with that id");
         }
+        DeserializedRecipe recipeToReturn = dataTransformer.convertRecipeIntoDeserializedRecipe(recipe);
         return ResponseEntity.status(HttpStatus.OK).body(recipe);
     }
 
@@ -119,68 +120,23 @@ public class CookbookController {
     @PostMapping("/cookbook/recipe")
     public ResponseEntity<?> createRecipe(@RequestBody DeserializedRecipe recipe) {
         try {
-            Recipe newRecipe = new Recipe(recipe.getServes(), recipe.getName(), recipe.getDescription(), recipe.getCreatedBy(), recipe.getCuisine());
-            Recipe createdRecipe = recipeService.createRecipe(newRecipe);
-            List<Map<String, Map<String, String>>> ingredientsAndQuantities = recipe.getIngredientsAndQuantities();
-            for (Map<String, Map<String, String>> element : ingredientsAndQuantities) {
-                String ingredientName = element.get("ingredient").get("name");
-                Ingredient newIngredient;
-                Ingredient ingredientMatchingName = ingredientService.getIngredientByName(ingredientName);
-                if(ingredientMatchingName == null ) {
-                    newIngredient = ingredientService.createIngredient(new Ingredient(ingredientName));
-                } else {
-                    newIngredient = ingredientMatchingName;
-                }
-                Map<String, String> quantity = element.get("quantity");
-                Quantity newQuantity;
-                Quantity quantityMatchingValueAndUnit = quantityService.getQuantityByValueAndUnit(Double.parseDouble(quantity.get("value")), IngredientUnit.valueOf(quantity.get("unit")));
-                if(quantityMatchingValueAndUnit == null) {
-                    newQuantity = quantityService.createQuantity(new Quantity(Double.parseDouble(quantity.get("value")), IngredientUnit.valueOf(quantity.get("unit"))));
-                } else {
-                    newQuantity = quantityMatchingValueAndUnit;
-                }
-                recipeElementService.createRecipeElement(new RecipeElement(newIngredient, createdRecipe, newQuantity));
-            }
+            Recipe createdRecipe = dataTransformer.convertDeserializedRecipeIntoRecipe(recipe);
             return ResponseEntity.status(HttpStatus.OK).body(createdRecipe);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
+
     @Transactional
     @PutMapping("/cookbook/recipe/{id}")
     public ResponseEntity<?> updateRecipe(@PathVariable String id, @RequestBody DeserializedRecipe recipe) {
         Recipe existingRecipe = recipeService.getRecipeById(parseInt(id));
-        if(existingRecipe == null) {
+        if (existingRecipe == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("couldn't find a recipe with that id");
         } else {
             try {
-                existingRecipe.setName(recipe.getName());
-                existingRecipe.setServes(recipe.getServes());
-                existingRecipe.setDescription(recipe.getDescription());
-                existingRecipe.setCreatedBy(recipe.getCreatedBy());
-                existingRecipe.setCuisine(recipe.getCuisine());
-                recipeElementService.deleteRecipeElementByRecipe(existingRecipe);
-                List<Map<String, Map<String, String>>> ingredientsAndQuantities = recipe.getIngredientsAndQuantities();
-                for (Map<String, Map<String, String>> element : ingredientsAndQuantities) {
-                    String ingredientName = element.get("ingredient").get("name");
-                    Ingredient newIngredient;
-                    Ingredient ingredientMatchingName = ingredientService.getIngredientByName(ingredientName);
-                    if(ingredientMatchingName == null ) {
-                        newIngredient = ingredientService.createIngredient(new Ingredient(ingredientName));
-                    } else {
-                        newIngredient = ingredientMatchingName;
-                    }
-                    Map<String, String> quantity = element.get("quantity");
-                    Quantity newQuantity;
-                    Quantity quantityMatchingValueAndUnit = quantityService.getQuantityByValueAndUnit(Double.parseDouble(quantity.get("value")), IngredientUnit.valueOf(quantity.get("unit")));
-                    if(quantityMatchingValueAndUnit == null) {
-                        newQuantity = quantityService.createQuantity(new Quantity(Double.parseDouble(quantity.get("value")), IngredientUnit.valueOf(quantity.get("unit"))));
-                    } else {
-                        newQuantity = quantityMatchingValueAndUnit;
-                    }
-                    recipeElementService.createRecipeElement(new RecipeElement(newIngredient, existingRecipe, newQuantity));
-                }
+                existingRecipe = dataTransformer.updateExitingRecipeFromDeserializedRecipe(existingRecipe, recipe);
                 return ResponseEntity.status(HttpStatus.OK).body(existingRecipe);
             } catch (RuntimeException e) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -195,15 +151,6 @@ public class CookbookController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("couldn't find a recipe to delete with that id");
         }
         return ResponseEntity.status(HttpStatus.OK).body("recipe deleted successfully");
-    }
-
-    @DeleteMapping("/cookbook/ingredient/{id}")
-    public ResponseEntity<String> deleteIngredient(@PathVariable String id) {
-        boolean isDeleted = ingredientService.deleteIngredientById(parseInt(id));
-        if (isDeleted == false) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("couldn't find an ingredient to delete with that id");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body("ingredient deleted successfully");
     }
 
 
