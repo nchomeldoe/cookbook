@@ -8,6 +8,7 @@ There is a also a DeserializedRecipe class which mirrors the structure of the da
 
 To create an object the user submits data in JSON format with a body such as:
 
+```
  {
         "serves": 2,
         "name": "Omelette",
@@ -40,4 +41,4 @@ To create an object the user submits data in JSON format with a body such as:
             }
         ]
     }
-
+```
